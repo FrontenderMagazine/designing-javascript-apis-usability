@@ -19,7 +19,7 @@
 
 ### Текучий интерфейс
 
-[Текучим интерфейсом][2] часто называют *цепочки вызовов* (хотя это всего
+[Текучим интерфейсом][2] часто называют *цепные вызовы* (хотя это всего
 половина правды). В глазах новичков он выглядит как *стиль jQuery*.
 Хотя я и уверен, что стиль API стал ключевым фактором успеха jQuery, он не
 был ими изобретён, лавры создателя, похоже, принадлежат Мартину Фаулеру,
@@ -38,12 +38,12 @@ jQuery. Но с другой стороны, Фаулер лишь дал это
 [chainvas][6], утилиту для оборачивания обычных API с гетерами и сеттерами
 в приятные текучие интефейсы. [`_.chain()`][7] в Underscore тоже делает что-то
 подобное. В сущности, большинство библиотек нового поколения поддерживают 
-цепочки вызовов.
+цепные вызовы.
 
-#### Цепочки вызовов
+#### Цепные вызовы
 
-Главная цель [цепочек вызовов][8] в том, чтобы код как можно более легко
-читался с тем, чтобы его можно понять быстрее. Используя *цепочки вызовов*,
+Главная цель [цепных вызовов][8] в том, чтобы код как можно более легко
+читался с тем, чтобы его можно понять быстрее. Используя *цепные вызовы*,
 можно сделать код похожим на предложения, делая их проще для чтения и при этом
 избавляясь от шума:
 
@@ -55,7 +55,7 @@ jQuery. Но с другой стороны, Фаулер лишь дал это
       alert("hello world!");
     }, true);
     
-    // (воображаемый) API с цепочкой вызовов
+    // (воображаемый) API с цепным вызовом
     DOMHelper.getElementById('foobar')
       .setStyle("background", "red")
       .setStyle("color", "green")
@@ -75,7 +75,7 @@ jQuery. Но с другой стороны, Фаулер лишь дал это
 меняют состояние, но никогда и то и другое вместе. Эта концепция лежит в
 основе повседневных геттеров и сеттеров, которые мы можем увидеть в
 большинстве современных библиотек. Коль скоро *текучие интерфейсы* возвращают
-ссылку на себя для методов в цепочках вызовов, мы уже нарушаем правило для
+ссылку на себя для цепного вызова методов, мы уже нарушаем правило для
 *команд*, потому как они по-хорошему не должны ничего возвращать. Вдовесок
 к этой (легко игнорируемой) особенности мы (преднамеренно) отходим от этого
 принципа с тем, чтобы придерживаться максимальной простоты в API.
@@ -105,38 +105,41 @@ jQuery. Но с другой стороны, Фаулер лишь дал это
 документирования API позже, а сейчас я хотел бы заметить, что функции со
 множественными сигнатурами, возможно, будет сложнее документировать.
 
-#### Going Fluent {#going-fluent}
+#### Переходим на текучесть
 
-While method chaining already does most of the job for going fluent, you’re
-not off the hook yet. To illustrate the next step of *fluent*, we’re
-pretending to write a little library handling date intervals. An interval starts
-with a date and ends with a date. A date is not necessarily connected to an 
-interval. So we come up with this simple constructor:
+Хотя текучесть уже по большей части обеспечивается цепными вызовами, мы ещё
+не закончили. Следующий шаг к *текучести* поможет продемонстрировать такой
+пример: представим, что мы пишем маленькую библиотечку для работы с
+интервалами дат. Интервал начинается с даты и датой заканчивается. Дата
+не обязательно связана с интервалом. Размышляя так мы приходим к простому
+конструктору:
 
-    // create new date interval
+    // создаём новый временной интервал
     var interval = new DateInterval(startDate, endDate);
-    // get the calculated number of days the interval spans
+    // получаем посчитанное количество дней в интервале
     var days = interval.days();
 
-While this looks right at first glance, this example shows what’s wrong:
+Хотя на первый взгляд кажется, что всё верно, этот пример показывает, что
+не так:
 
     var startDate = new Date(2012, 0, 1);
     var endDate = new Date(2012, 11, 31)
     var interval = new DateInterval(startDate, endDate);
     var days = interval.days(); // 365
 
-We’re writing out a whole bunch of variables and stuff we probably won’t
-need. A nice solution to the problem would be to add a function to the Date 
-object in order to return an interval:
+Мы написали целую кучу переменных и хлама, который нам, возможно, не нужен.
+Хорошим решением этой проблемы было бы добавление объекту Date функции,
+которая возвращает интервал:
 
-    // DateInterval creator for fluent invocation
+    // создаёт DateInterval для текучего вызова
     Date.prototype.until = function(end) {
     
-      // if we weren't given a date, make one
+      // если дата не была передана, создаём её
       if (!(end instanceof Date)) {
-        // create date from given arguments,
-        // proxy the constructor to allow for any parameters
-        // the Date constructor would've taken natively
+        // создаём дату, передавая полученные аргументы 
+        // в конструктор без изменения, таким образом,
+        // эта функция принимает точно такие
+        // же параметры, как и конструктор Date.
         end = Date.apply(null, 
           Array.prototype.slice.call(arguments, 0)
         );
@@ -145,89 +148,96 @@ object in order to return an interval:
       return new DateInterval(this, end);
     };
 
-Now we can create that `DateInterval` in a fluent, easy to type-and-read
-fashion:
+Так мы создали `DateInterval` в текучей, лёгкой для написания и прочтения
+манере:
 
     var startDate = new Date(2012, 0, 1);
     var interval = startDate.until(2012, 11, 31);
     var days = interval.days(); // 365
     
-    // condensed fluent interface call:
+    // сжатый вызов текучего интерфейса:
     var days = (new Date(2012, 0, 1))
-      .until(2012, 11, 31) // returns DateInterval instance
+      .until(2012, 11, 31) // возвращает экземпляр DateInterval
       .days(); // 365
 
-As you can see in this last example, there are less variables to declare, less
-code to write, and the operation almost reads like an english sentence. With 
-this example you should have realized that method chaining is only a part of a 
-fluent interface, and as such, the terms are not synonymous. To provide fluency,
-you have to think about code streams — where are you coming from and where you 
-are headed.
+Как вы видите, в последнем примере пришлось объявить меньше переменных и
+написать меньше кода, а сама операция читается как предложение на английском
+языке. Этот пример был призван помочь вам осознать, что цепные вызовы — это
+лишь часть текучего интерфейса, и эти понятия не синонимы. Для обеспечения
+текучести вы должны думать о потоках кода — откуда вы начинаете, и куда
+направляетесь.
 
-This example illustrated fluidity by extending a native object with a custom
-function. This is as much a religion as using semicolons or not. In
-[Extending built-in native objects. Evil or not?][11] [kangax][12] explains the
-ups and downs of this approach. While everyone has their opinions about this, 
-the one thing everybody agrees on is keeping things consistent. As an aside, 
-even the followers of “Don’t pollute native objects with custom functions” would
-probably let the following, still somewhat fluid trick slide:
+`//TODO: Перевести следующий абзац ближе к тексту`
+
+Этот пример иллюстрировал текучесть через расширение нативного объекта
+произвольной функцией. Это такой же предмет религиозных войн, как и вопрос,
+надо ли использовать точки с запятой, или нет. В статье
+[Расширение встроенных нативных объектов. Зло или нет?][11] [kangax][12]
+объясняет плюсы и минусы такого подхода. Хотя у каждого есть своё мнение,
+все сходятся в одном: в таких вещах нужно единообразие. Впрочем, даже
+приверженцы позиции «нельзя загрязнять нативные объекты своими функциями»
+допустили бы такой, по-своему текучий, приём:
 
     String.prototype.foo = function() {
       return new Foo(this);
     }
     
-    "I'm a native object".foo()
+    "Я нативный объект".foo()
       .iAmACustomFunction();
 
-With this approach your functions are still within your namespace, but made
-accessible through another object. Make sure your equivalent of`.foo()` is a
-non-generic term, something highly unlikely to collide with other APIs. Make 
-sure you provide proper[`.valueOf()`][13] and [`.toString()`][14] methods to
-convert back to the original primitive types.
+С таким подходом ваши функции по-прежнему находятся внутри собственного
+пространства имён, но при этом достуны через другой объект. Убедитесь, что
+ваш эквивалент `.foo()` не является общим термином и очень навряд ли
+пересечётся с другими API. Убедитесь, что вы должным образом предоставили
+методы [`.valueOf()`][13] и [`.toString()`][14], чтобы объекты можно было
+преобразовать обратно в изначальные примитивные типы.
 
-### Consistency {#consistency}
+### Единообразие
 
-[Jake Archibald][15] once had a slide defining *Consistency*. It simply read 
-[*Not PHP*][16]. Do. Not. Ever. Find yourself naming functions like *str_repeat
-()*, *strpos()*, *substr()*. Also, don’t ever shuffle around positions of
-arguments. If you declared`find_in_array(haystack, needle)` at some point,
-introducing`findInString(needle, haystack)` will invite an angry mob of zombies
-to rise from their graves to hunt you down and force you to write delphi for the
-rest of your life!
+У [Джейка Арчибальд][15] был слайд с определением слова *единообразие*.
+Оно гласило просто: [*не PHP*][16]. Не. Дай. Бог. Вы вздумаете назвать
+функцию вроде *str_repeat()*, *strpos()*, *substr()*. Также никогда в жизни
+не меняйте позиции аргументов. Если вы объявили в каком-то одном месте 
+`find_in_array(haystack, needle)`, то добавление
+`findInString(needle, haystack)` призовёт разъярённую толпу зомби подняться
+из своих могил, выследить вас и заставить писать на delphi до скончания
+жизни!
 
-#### Naming Things {#naming-things}
+#### Именование вещей
 
-> “There are only two hard problems in computer science: cache-invalidation
-> and naming things.
-> ”
-> 
-> — Phil Karlton
+> «В вычислительной науке всего две сложные задачи: инвалидация кэша
+> и именование переменных.»
+>
+> — Фил Карлтон
 
-I’ve been to numerous talks and sessions trying to teach me the finer points
-of naming things. I haven’t left any of them without having heard the above said
-quote, nor having learnt how to actually name things. My advice boils down to
-*keep it short but descriptive and go with your gut*. But most of all, keep it
-consistent.
+`//TODO: двойное отрицание, проверить!`
 
-The `DateInterval` example above introduced a method called `until()`. We could
-have named that function`interval()`. The latter would have been closer to the
-returned value, while the former is more *humanly readable*. Find a line of
-wording you like and stick with it. Consistency is 90% of what matters. Choose 
-one style and keep that style — even if you find yourself disliking it at some 
-point in the future.
+Я посещал множество встреч и семинаров, где меня пытались научить тонкостям
+именования вещей. Не было случая, чтобы ушёл оттуда не услышав упомянутую
+выше цитату и не узнав, как же на самом деле следует именовать вещи.
+Мой совет сводится к *называйте кратко но осмысленно, и доверьтесь интуиции*.
+Но прежде всего, соблюдайте единообразие.
 
-### Handling Arguments {#handling-arguments}
+В примере с `DateInterval` выше был метод под названием `until()`. Мы могли
+бы назвать эту функцию `interval()`. Последнее было бы ближе к возвращаемому
+значению, хотя первое более *человеко-читаемое*. Подберите такие формулировки,
+какие вам нравятся, и придерживайтесь их. Единообразие — это 90% того, что
+имеет значение. Выберите один стиль и сохраняйте этот стиль, даже если в
+будущем он вам разонравится.
 
-![Good Intentions][17]
+### Обработка аргументов
 
-How your methods accept data is more important than making them chainable.
-While method chaining is a pretty generic thing that you can easily make your 
-code do, handling arguments is not. You’ll need to think about how the methods 
-you provide are most likely going to be used. Is code that uses your API likely 
-to repeat certain function calls? Why are these calls repeated? How could your 
-API help the developer to reduce the noise of repeating method calls?
+![Благие намерения][17]
 
-jQuery’s [`css()`][10] method can set styles on a DOM element:
+То, каким образом ваши методы принимают значения, важнее, чем стремление
+сделать их цепными. Цепные вызовы — это достаточно обыденная вещь, которую
+несложно воплотить в коде, а вот обработка аргументов — нет. Вам нужно
+продумать то, как скорее всего будут использоваться предоставленные вами
+методы. Будет ли код, использующий ваш API, повторять определённые
+вызовы функций? Почему эти вызовы будут повторяться? Как может ваш API
+помочь разработчику уменьшить шум от повторяющихся вызовов методов?
+
+Метод [`css()`][10] в jQuery может устанавливать стили элементов DOM:
 
     jQuery("#some-selector")
       .css("background", "red")
@@ -235,8 +245,9 @@ jQuery’s [`css()`][10] method can set styles on a DOM element:
       .css("font-weight", "bold")
       .css("padding", 10);
 
-There’s a pattern here! Every method invocation is naming a style and
-specifying a value for it. This calls for having the method accept a map:
+Тут же паттерн! Каждый вызов метода указывает имя стиля и определяет значение
+для него. Возможность передать эти данные в виде объекта-словаря так и
+просится:
 
     jQuery("#some-selector").css({
       "background" : "red",
@@ -245,9 +256,9 @@ specifying a value for it. This calls for having the method accept a map:
       "padding" : 10
     });
 
-jQuery’s [`on()`][18] method can register event handlers. Like `css()` it
-accepts a map of events, but takes things even further by allowing a single 
-handler to be registered for multiple events:
+Метод [`on()`][18] jQuery может регистрировать обработчики событий. Как и
+`css()`, он может принимать словарь событий, но идёт ещё дальше, позволяя
+зарегистрировать один обработчик на несколько событий:
 
     // binding events by passing a map
     jQuery("#some-selector").on({
