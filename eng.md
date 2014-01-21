@@ -1,6 +1,3 @@
-<article class="post-122482 post type-post status-publish format-standard hentry
-category-coding category-javascript tag-code tag-javascript post
-">
 At some point or another, you will find yourself writing JavaScript code that
 exceeds the couple of lines from a jQuery plugin. Your code will do a whole lot 
 of things; it will (ideally) be used by many people who will approach your code 
@@ -10,12 +7,12 @@ differently. They have different needs, knowledge and expectations.
 
 This article covers the most important things that you will need to consider
 before and while writing your own utilities and libraries. We’ll focus on how to
-make your code*accessible* to other developers. A couple of topics will be
+make your code *accessible* to other developers. A couple of topics will be
 touching upon jQuery for demonstration, yet this article is neither about jQuery
 nor about writing plugins for it.
 
 Peter Drucker once said: “The computer is a moron.” Don’t write code for
-morons, write for humans! Let’s dive into**designing the APIs that developers
+morons, write for humans! Let’s dive into **designing the APIs that developers
 will love using**.
 
 #### Table of Contents
@@ -23,7 +20,7 @@ will love using**.
 ### Fluent Interface {#fluent-interface}
 
 The [Fluent Interface][2] is often referred to as *Method Chaining* (although
-that’s only half the truth). To beginners it looks like the*jQuery style*.
+that’s only half the truth). To beginners it looks like the *jQuery style*.
 While I believe the API style was a key ingredient in jQuery’s success, it wasn’
 t invented by them — credits seem to go to Martin Fowler who
 [coined the term][3] back in 2005, roughly a year before jQuery was released.
@@ -31,7 +28,7 @@ Fowler only gave the thing a name, though — Fluent Interfaces have been around
 for a much longer time.
 
 Aside from major simplifications, jQuery offered to even out severe browser
-differences. It has always been the*Fluent Interface* that I have loved most
+differences. It has always been the *Fluent Interface* that I have loved most
 about this extremely successful library. I have come to enjoy this particular 
 API style so much that it became immediately apparent that I wanted this style 
 for[URI.js][4], as well. While tuning up the URI.js API, I constantly looked
@@ -45,7 +42,7 @@ method chaining.
 #### Method Chaining {#method-chaining}
 
 The general idea of [Method Chaining][8] is to achieve code that is as fluently
-readable as possible and thus quicker to understand. With*Method Chaining* we
+readable as possible and thus quicker to understand. With *Method Chaining* we
 can form code into sentence-like sequences, making code easy to read, while 
 reducing noise in the process:
 
@@ -72,12 +69,12 @@ repeat that over and over again.
 
 [Command and Query Separation][9] (CQS) is a concept inherited from imperative
 programming. Functions that change the state (internal values) of an object are 
-called*commands*, functions that retrieve values are called *queries*. In
+called *commands*, functions that retrieve values are called *queries*. In
 principle, queries return data, commands change the state — but neither does 
 both. This concept is one of the foundations of the everyday getter and setter 
-methods we see in most libraries today. Since*Fluent Interfaces* return a self-
-reference for chaining method calls, we’re already breaking the rule for*
-commands*, as they are not supposed to return anything. On top of this (easy to
+methods we see in most libraries today. Since *Fluent Interfaces* return a self-
+reference for chaining method calls, we’re already breaking the rule for
+*commands*, as they are not supposed to return anything. On top of this (easy to
 ignore) trait, we (deliberately) break with this concept to keep APIs as simple 
 as possible. An excellent example for this practice is jQuery’s[`css()`][10]
 method:
@@ -95,7 +92,7 @@ method:
     $elem.css("color") === "red";
 
 As you can see, getter and setter methods are merged into a single method. The
-action to perform (namely,*query* or *command*) is decided by the amount of
+action to perform (namely, *query* or *command*) is decided by the amount of
 arguments passed to the function, rather than by which function was called. This
 allows us to expose fewer methods and in turn type less to achieve the same goal.
 
@@ -108,7 +105,7 @@ multiple function signatures may be harder to document.
 #### Going Fluent {#going-fluent}
 
 While method chaining already does most of the job for going fluent, you’re
-not off the hook yet. To illustrate the next step of*fluent*, we’re
+not off the hook yet. To illustrate the next step of *fluent*, we’re
 pretending to write a little library handling date intervals. An interval starts
 with a date and ends with a date. A date is not necessarily connected to an 
 interval. So we come up with this simple constructor:
@@ -205,13 +202,13 @@ rest of your life!
 
 I’ve been to numerous talks and sessions trying to teach me the finer points
 of naming things. I haven’t left any of them without having heard the above said
-quote, nor having learnt how to actually name things. My advice boils down to*
-keep it short but descriptive and go with your gut*. But most of all, keep it
+quote, nor having learnt how to actually name things. My advice boils down to
+*keep it short but descriptive and go with your gut*. But most of all, keep it
 consistent.
 
 The `DateInterval` example above introduced a method called `until()`. We could
 have named that function`interval()`. The latter would have been closer to the
-returned value, while the former is more*humanly readable*. Find a line of
+returned value, while the former is more *humanly readable*. Find a line of
 wording you like and stick with it. Consistency is 90% of what matters. Choose 
 one style and keep that style — even if you find yourself disliking it at some 
 point in the future.
@@ -319,7 +316,7 @@ names, that make using your API not only cleaner, but more comfortable and
 efficient to use. Obviously not all of your APIs’ methods will benefit from this
 method pattern — it’s up to you to decide where all this makes sense and where 
 it is just a waste of time. Try to be as consistent about this as humanly 
-possible.*Reduce the need for boilerplate code with the tricks shown above and
+possible. *Reduce the need for boilerplate code with the tricks shown above and
 people will invite you over for a drink.*
 
 #### Handling Types {#handling-types}
@@ -563,7 +560,7 @@ needs to. A simple example is testing the truthfulness:
 
 We’re quite used to this automatic casting. We’re so used to it, that we
 forget that although something is truthful, it may not be the boolean truth. 
-Some APIs are so flexible they are*too smart* for their own good. Take a look
+Some APIs are so flexible they are *too smart* for their own good. Take a look
 at the signatures of[jQuery.toggle()][28]:
 
     .toggle( /* int */ [duration] [, /* function */  callback] )
@@ -582,8 +579,8 @@ It will take us some time decrypting why these behave *entirely* different:
 
 We were *expecting* to use the `showOrHide` signature in both cases. But what
 really happened is`$hello` doing a toggle with a `duration` of one millisecond
-. This is not a bug in jQuery, this is a simple case of*expectation not met*.
-Even if you’re an experienced jQuery developer, you*will* trip over this from
+. This is not a bug in jQuery, this is a simple case of *expectation not met*.
+Even if you’re an experienced jQuery developer, you *will* trip over this from
 time to time.
 
 You are free to add as much convenience / sugar as you like — but do not
@@ -914,9 +911,9 @@ is often used to keep memory overhead low, values passed by reference can be
 changed anywhere outside your API and affect state within.
 
 In JavaScript there is no way to tell if arguments should be passed by
-reference or value. Primitives (strings, numbers, booleans) are treated as*pass
+reference or value. Primitives (strings, numbers, booleans) are treated as *pass
 by value*, while objects (any object, including Array, Date) are handled in a
-way that’s comparable to*by reference*. If this is the first you’re hearing
+way that’s comparable to *by reference*. If this is the first you’re hearing
 about this topic, let the following example enlighten you:
 
     // by value
@@ -952,7 +949,7 @@ not careful. Going back to the`DateInterval` example, check out this bugger:
 
 Unless the constructor of DateInterval *made a copy* (`clone` is the technical
 term for a copy) of the values it received, any changes to the original objects 
-will reflect on the internals of DateInterval. This is*usually* not what we
+will reflect on the internals of DateInterval. This is *usually* not what we
 want or expect.
 
 Note that the same is true for values returned from your API. If you simply
@@ -1045,7 +1042,7 @@ code only validates where I anticipate developers stumbling. Nobody really does
 it, but all of us should. Programmers are a lazy bunch — we don’t write code 
 just for the sake of writing code or for some cause we don’t truly believe in. 
 The developers of Perl6 have recognized this being a problem and decided to 
-incorporate something called*Parameter Constraints*. In JavaScript, their
+incorporate something called *Parameter Constraints*. In JavaScript, their
 approach might look something like this:
 
     function validateAllTheThings(a, b {where typeof b === "numeric" and b < 10}) {
@@ -1062,12 +1059,12 @@ languages) that is the interesting part of this story.
 JavaScript is neither weak nor inferior, we just have to work a bit harder to
 make our stuff really robust. Making code robust does not mean accepting any 
 data, waving your wand and getting some result. Being robust means not accepting
-rubbish*and telling the developer about it*.
+rubbish *and telling the developer about it*.
 
 Think of input validation this way: A couple of lines of code behind your API
 can make sure that no developer has to spend hours chasing down weird bugs 
 because they accidentally gave your code a string instead of a number. This is 
-the one time you can tell people*they’re wrong* and they’ll actually love you
+the one time you can tell people *they’re wrong* and they’ll actually love you
 for doing so.
 
 ### Going Asynchronous {#going-asynchronous}
@@ -1139,7 +1136,7 @@ certain limitations regarding de-buggability.
 
 As with any code, *Test Driven Development* (TDD) is an easy way to reduce
 debugging needs. Having written URI.js in TDD, I have not come across major 
-pains regarding debugging my code. However, TDD only*reduces* the need for
+pains regarding debugging my code. However, TDD only *reduces* the need for
 debugging — it doesn’t replace it entirely.
 
 Some voices on the internet suggest writing out each component of a chain in
@@ -1248,7 +1245,7 @@ You should be writing code that explains itself. Most of the time this is a non
 variables, etc) and sticking to a core concept. If you find yourself writing 
 code comments to document how your code does something, you’re most likely 
 wasting time — your time, and the reader’s as well. Comment on your code to 
-explain*why* you solved the problem this particular way, rather than explaining
+explain *why* you solved the problem this particular way, rather than explaining
 *how* you solved the problem. The *how* should become apparent through your
 code, so don’t repeat yourself. Note that using comments to mark sections within
 your code or to explain general concepts is totally acceptable.
@@ -1259,8 +1256,7 @@ your code or to explain general concepts is totally acceptable.
     ). Don’t just change things between versions.
    
 *   You should invest as much time into the question *How will people use my
-    software?
-   * as you have put into *How does my software work internally?* 
+    software?* as you have put into *How does my software work internally?* 
 *   With a couple of simple tricks you can greatly reduce the developer’s
     efforts (in terms of the lines of code
     ).
@@ -1278,7 +1274,7 @@ Now that you’re up to speed on designing APIs, have a look at
 to structure your internal code.
 
 *Thanks go out to [@bassistance][54], [@addyosmani][53] and [@hellokahlil][55]
-for taking the time to proof this article.*</article>
+for taking the time to proof this article.*
 
  [1]: img/Pie-chart.jpg "Time Spent On Creating Vs Time Spent On Using"
  [2]: http://en.wikipedia.org/wiki/Fluent_interface#JavaScript
