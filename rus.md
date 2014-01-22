@@ -212,9 +212,9 @@ jQuery. Но с другой стороны, Фаулер лишь дал это
 
 `//TODO: двойное отрицание, проверить!`
 
-Я посещал множество встреч и семинаров, где меня пытались научить тонкостям
-именования вещей. Не было случая, чтобы ушёл оттуда не услышав упомянутую
-выше цитату и не узнав, как же на самом деле следует именовать вещи.
+Я бывал на многих встречах и конференциях, пытаясь научиться тонкостям
+именования. Я не ушёл ни с одной из них, не услышав упомянутой выше цитаты,
+и так и не научился, как же всё-таки называть вещи.
 Мой совет сводится к *называйте кратко но осмысленно, и доверьтесь интуиции*.
 Но прежде всего, соблюдайте единообразие.
 
@@ -245,9 +245,9 @@ jQuery. Но с другой стороны, Фаулер лишь дал это
       .css("font-weight", "bold")
       .css("padding", 10);
 
-Тут же паттерн! Каждый вызов метода указывает имя стиля и определяет значение
-для него. Возможность передать эти данные в виде объекта-словаря так и
-просится:
+Выявилась закономерность! Каждый вызов метода указывает имя стиля и определяет
+значение для него. Возможность передать эти данные в виде объекта-словаря так
+и просится:
 
     jQuery("#some-selector").css({
       "background" : "red",
@@ -260,37 +260,37 @@ jQuery. Но с другой стороны, Фаулер лишь дал это
 `css()`, он может принимать словарь событий, но идёт ещё дальше, позволяя
 зарегистрировать один обработчик на несколько событий:
 
-    // binding events by passing a map
+    // привязываемся к событиям, передавая словарь:
     jQuery("#some-selector").on({
       "click" : myClickHandler,
       "keyup" : myKeyupHandler,
       "change" : myChangeHandler
     });
     
-    // binding a handler to multiple events:
+    // привязываем обработчик к нескольким событиям:
     jQuery("#some-selector").on("click keyup change", myEventHandler);
 
-You can offer the above function signatures by using the following *method
-pattern*:
+Вы можете предоставить подобные сигнатуры функций используя *шаблон метода*:
 
     DateInterval.prototype.values = function(name, value) {
       var map;
     
       if (jQuery.isPlainObject(name)) {
-        // setting a map
+        // устанавливаем словарь
         map = name;
       } else if (value !== undefined) {
-        // setting a value (on possibly multiple names), convert to map
+        // устанавливаем значение (возможно, на нескольких именах),
+        // преобразуем в словарь
         keys = name.split(" ");
         map = {};
         for (var i = 0, length = keys.length; i < length; i++) {
           map[keys[i]] = value;
         }
       } else if (name === undefined) {
-        // getting all values
+        // получаем все значения
         return this.values;
       } else {
-        // getting specific value
+        // получаем конкретное значение
         return this.values[name];
       }
     
@@ -301,54 +301,56 @@ pattern*:
       return this;
     };
 
-If you are working with collections, think about what you can do to reduce the
-number of loops an API user would probably have to make. Say we had a number of
-`<input>` elements for which we want to set the default value:
+Если вы работаете с коллекциями, подумайте, как бы вы смогли уменьшить
+количество циклов, которые придется создать пользователю вашего API.
+Скажем, у нас есть несколько элементов `<input>`, которым мы хотим установить
+значение по умолчанию:
 
     <input type="text" value="" data-default="foo">
     <input type="text" value="" data-default="bar">
     <input type="text" value="" data-default="baz">
 
-We’d probably go about this with a loop:
+Скорее всего, мы пройдёмся по ним в цикле:
 
     jQuery("input").each(function() {
       var $this = jQuery(this);
       $this.val($this.data("default"));
     });
 
-What if we could bypass that method with a simple callback that gets applied to
-each`<input>` in the collection? jQuery developers have thought of that
-and allow us to write less
-™:
+Что если мы бы могли обойтись без этого метода, используя простой коллбек,
+который применится к каждому `<input>` в коллекции? Разработчики jQuery
+подумали об этом, и позволили нам писать меньше™:
 
     jQuery("input").val(function() {
       return jQuery(this).data("default");
     });
 
-It’s the little things like accepting maps, callbacks or serialized attribute
-names, that make using your API not only cleaner, but more comfortable and 
-efficient to use. Obviously not all of your APIs’ methods will benefit from this
-method pattern — it’s up to you to decide where all this makes sense and where 
-it is just a waste of time. Try to be as consistent about this as humanly 
-possible. *Reduce the need for boilerplate code with the tricks shown above and
-people will invite you over for a drink.*
+Такие маленькие вещи, вроде возможности передавать словари, коллбеки, или
+сериализованные имена атрибутов, делают ваш API не только более чистым, но и
+более удобным и эффективнм в использовании. Очевидно, не во всех методах
+вашего API станут лучше от такого шаблона метода, и вам решать, где он имеет
+смысл, а где лишь пустая трата времени. Постарайтесь в этом отношении
+соблюдать единообразие настолько, насколько это в человеческих силах.
+*Уменьшите необходимость в шаблонном коде при помощи трюков, описанных выше,
+и люди станут ставить вам выпивку*.
 
-#### Handling Types {#handling-types}
+#### Обработка типов
 
-Whenever you define a function that will accept arguments, you decide what data
-that function accepts. A function to calculate the number of days between two 
-dates could look like:
+Когда вы определяете функцию с параметрами, вы решаете, какие данные эта
+функция будет принимать. Функция для определения количества дней между двумя
+датами могла бы выглядеть так:
 
     DateInterval.prototype.days = function(start, end) {
       return Math.floor((end - start) / 86400000);
     };
 
-As you can see, the function expects numeric input — a millisecond timestamp
-, to be exact. While the function does what we intended it to do, it is not very
-versatile. What if we’re working with`Date` objects or a string representation
-of a date? Is the user of this function supposed to cast data all the time? No! 
-Simply verifying the input and casting it to whatever we need it to be should be
-done in a central place, not cluttered throughout the code using our API:
+Как видите, функция принимает числа в качестве параметров — метки времени
+в миллисекундах, если быть точнее. Хотя функция и справляется с тем, на что
+рассчитана, она не очень-то гибкая. А что, если мы работаем с объектами `Date`,
+или со строковыми представлениями дат? Пользователю придётся всяких раз
+приводить данные к нужному виду? Нет! В нашем API простые операции проверки
+входных данных и их приведения должны находиться в единственном месте, а не
+быть раскиданными по всему коду:
 
     DateInterval.prototype.days = function(start, end) {
       if (!(start instanceof Date)) {
@@ -361,17 +363,17 @@ done in a central place, not cluttered throughout the code using our API:
       return Math.floor((end.getTime() - start.getTime()) / 86400000);
     };
 
-By adding these six lines we’ve given the function the power to accept a Date
-object, a numeric timestamp, or even a string representation like
-`Sat Sep 08 2012 15:34:35 GMT+0200 (CEST)`. We do not know how and for what
-people are going to use our code, but with a little foresight, we can make sure 
-there is little pain with integrating our code.
+Мы добавили шесть строчек и дали функции возможность принимать на вход объект
+Date, метку времени в виде числа, или даже строковое представление вроде
+`Sat Sep 08 2012 15:34:35 GMT+0200 (CEST)`. Мы не знаем, как и для чего люди
+будут использовать наш код, но проявив немного предусмотрительности, можем
+быть уверены, что интеграция нашего кода пройдёт безболезненно.
 
-The experienced developer can spot another problem in the example code. We’re
-assuming`start` comes before `end`. If the API user accidentally swapped the
-dates, he’d be given a negative value for the number of days between`start` and
-`end`. Stop and think about these situations carefully. If you’ve come to the
-conclusion that a negative value doesn’t make sense, fix it:
+Опытный разработчик может заметить ещё одну проблему в нашем коде. Мы
+предполагаем, что `start` будет перед `end`. Если пользователь API случайно
+поменяет местами даты, ему вернётся отрицательно количество дней между
+`start` и `end`. Остановитесь и хорошенько продумайте такие ситуации.
+Если вы решите, что отрицательное значение не имеет смысла, поправьте это:
 
     DateInterval.prototype.days = function(start, end) {
       if (!(start instanceof Date)) {
@@ -384,22 +386,20 @@ conclusion that a negative value doesn’t make sense, fix it:
       return Math.abs(Math.floor((end.getTime() - start.getTime()) / 86400000));
     };
 
-JavaScript allows type casting a number of ways. If you’re dealing with
-primitives (string, number, boolean) it can get as simple (as in “short”) as:
+JavaScript позволяет приводить типы множеством способов. Если вы работаете
+с примитивами (string, number, boolean), это можно сделать просто (и кратко):
 
     function castaway(some_string, some_integer, some_boolean) {
       some_string += "";
-      some_integer += 0; // parseInt(some_integer, 10) is the safer bet
+      some_integer += 0; // parseInt(some_integer, 10) безопаснее
       some_boolean = !!some_boolean;
     }
 
-I’m not advocating you to do this everywhere and at all times. But these
-innocent looking lines may save time and some suffering while integrating your 
-code.
+Я не настаиваю на том, чтобы вы делали так всегда. Но эти невинно выглядящие
+строчки могут сохранить время и избавить от страданий во время встраивания
+вашего кода.
 
-#### Treating `undefined` as an Expected Value {#treating-undefined-as-an-
-expected-value
-}
+#### Рассматриваем `undefined` как ожидаемое значение
 
 There will come a time when `undefined` is a value that your API actually
 expects to be given for setting an attribute. This might happen to “unset” an 
