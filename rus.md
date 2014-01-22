@@ -401,45 +401,46 @@ JavaScript позволяет приводить типы множеством �
 
 #### Рассматриваем `undefined` как ожидаемое значение
 
-There will come a time when `undefined` is a value that your API actually
-expects to be given for setting an attribute. This might happen to “unset” an 
-attribute, or simply to gracefully handle bad input, making your API more robust.
-To identify if the value`undefined` has actually been passed by your method,
-you can check the[`arguments`][19] object:
+Рано или поздно окажется, что ваш API будет ожидать `undefined` в качестве
+значения, которое нужно установить атрибуту. Может быть, для «удаления»
+атрибута или для обработки некорректных параметров с целью ускорить работу
+вашего API. Чтобы определить, что значение `undefined` было явным образом
+передано в ваш метод, вы можете проверить объект [`arguments`][19]:
 
     function testUndefined(expecting, someArgument) {
       if (someArgument === undefined) {
-        console.log("someArgument was undefined");
+        console.log("someArgument является undefined");
       }
       if (arguments.length > 1) {
-        console.log("but was actually passed in");
+        console.log("но он был передан явно");
       }
     }
     
     testUndefined("foo");
-    // prints: someArgument was undefined
+    // выведется: someArgument является undefined
     testUndefined("foo", undefined);
-    // prints: someArgument was undefined, but was actually passed in
+    // выведется: someArgument является undefined, но он был передан явно
 
-#### Named Arguments {#named-arguments}
+#### Именованные аргументы
 
     event.initMouseEvent(
-      "click", true, true, window, 
-      123, 101, 202, 101, 202, 
-      true, false, false, false, 
+      "click", true, true, window,
+      123, 101, 202, 101, 202,
+      true, false, false, false,
       1, null);
 
-The function signature of [Event.initMouseEvent][20] is a nightmare come true.
-There is no chance any developer will remember what that`1` (second to last
-parameter) means without looking it up in the documentation. No matter how good 
-your documentation is, do what you can so people don’t have to look things up!
+Сигнатура функции [Event.initMouseEvent][20] — это кошмар наяву. Нет никаких
+шансов, что какой-нибудь разработчик вспомнит, что означает `1` (предпоследний
+параметр), не заглянув в документацию. Неважно, насколько хороша ваша
+документация, прилагайте все усилия к тому, чтобы людям не пришлось искать
+вещи!
 
-#### How Others Do It {#how-others-do-it}
+#### Как у других
 
-Looking beyond our beloved language, we find Python knowing a concept called 
-[named arguments][21]. It allows you to declare a function providing default
-values for arguments, allowing your attributed names to be stated in the calling
-context:
+Выглянув за пределы нашего с вами любимого языка, мы обнаружим в Python
+концепцию под названием [именованные аргументы][21]. С её помощью можно
+определить значения по умолчанию для аргументов функции, что позволит
+при вызове передавать данные при помощи имён.
 
     function namesAreAwesome(foo=1, bar=2) {
       console.log(foo, bar);
@@ -457,56 +458,57 @@ context:
     namesAreAwesome(bar=6);
     // prints: 1, 6
 
-Given this scheme, initMouseEvent() could’ve looked like a self-explaining
-function call:
+При использовании такой схемы вызов функции initMouseEvent() мог бы стать
+наглядным:
 
     event.initMouseEvent(
-      type="click", 
-      canBubble=true, 
-      cancelable=true, 
-      view=window, 
+      type="click",
+      canBubble=true,
+      cancelable=true,
+      view=window,
       detail=123,
-      screenX=101, 
-      screenY=202, 
-      clientX=101, 
-      clientY=202, 
-      ctrlKey=true, 
-      altKey=false, 
-      shiftKey=false, 
-      metaKey=false, 
-      button=1, 
+      screenX=101,
+      screenY=202,
+      clientX=101,
+      clientY=202,
+      ctrlKey=true,
+      altKey=false,
+      shiftKey=false,
+      metaKey=false,
+      button=1,
       relatedTarget=null);
 
-In JavaScript this is not possible today. While “the next version of
-JavaScript” (frequently called ES.next, ES6, or Harmony) will have
-[default parameter values][22] and [rest parameters][23], there is still no
-sign of named parameters.
+В JavaScript это пока невозможно. Хотя в «следующую версию JavaScript» (часто
+называемая ES.next, ES6 или Harmony) войдут
+[значения параметров по умолчанию][22] и
+[дополнительных позиционных параметров][23], про именованные параметры там
+до сих пор ни слова.
 
-#### Argument Maps {#argument-maps}
+#### Словари аргументов
 
-JavaScript not being Python (and ES.next being light years away), we’re left
-with fewer choices to overcome the obstacle of “argument forests”. jQuery (and 
-pretty much every other decent API out there) chose to work with the concept of
-“option objects”. The signature of[jQuery.ajax()][24] provides a pretty good
-example. Instead of accepting numerous arguments, we only accept an object:
+JavaScript не Python (а до ES.next как до Луны пешком), у нас остаётся не так
+уж много способов решить проблему «зарослей аргументов». В jQuery (и почти
+любом другом современном API) решено использовать понятие «объект с опциями».
+Сигнатура [jQuery.ajax()][24] — яркий тому пример. Вместо многочисленных
+аргументов, мы просто принимаем объект:
 
-    function nightmare(accepts, async, beforeSend, cache, complete, /* and 28 more */) {
+    function nightmare(accepts, async, beforeSend, cache, complete, /* и ещё 28 */) {
       if (accepts === "text") {
-        // prepare for receiving plain text
+        // готовимся получить текст
       }
     }
     
     function dream(options) {
       options = options || {};
       if (options.accepts === "text") {
-        // prepare for receiving plain text
+        // готовимся получить текст
       }
     }
 
-Not only does this prevent insanely long function signatures, it also makes
-calling the function more descriptive:
+Это не только избавляет нас от безумно длинных сигнатур функций, но ещё и
+делает вызов функции более наглядным:
 
-    nightmare("text", true, undefined, false, undefined, /* and 28 more */);
+    nightmare("text", true, undefined, false, undefined, /* и ещё 28 */);
     
     dream({
       accepts: "text",
@@ -514,14 +516,14 @@ calling the function more descriptive:
       cache: false
     });
 
-Also, we do not have to touch the function signature (adding a new argument)
-should we introduce a new feature in a later version.
+А ещё, нам не придётся трогать сигнатуру функции (добавлять аргументы), если
+в будущем мы заходит добавить новую фичу.
 
-#### Default Argument Values {#default-argument-values}
+#### Значения по умолчанию в аргументах
 
-[jQuery.extend()][25], [_.extend()][26] and Protoype’s [Object.extend][27] are
-functions that let you merge objects, allowing you to throw your own preset 
-options object into the mix:
+[jQuery.extend()][25], [_.extend()][26] и [Object.extend][27] из библиотеки
+Prototype — функции для объединения объектов, они позволяют примешать ваши
+собственные, заранее указанные, опции к переданным:
 
     var default_options = {
       accepts: "text",
@@ -541,47 +543,49 @@ options object into the mix:
     dream.default_options = default_options;
     
     dream({ async: false });
-    // prints: "text"
+    // выведется: "text"
 
-You’re earning bonus points for making the default values publicly accessible
-. With this, anyone can change`accepts` to “json” in a central place, and
-thus avoid specifying that option over and over again. Note that the example 
-will always append`|| {}` to the initial read of the option object. This allows
-you to call the function without an argument given.
+Вы получите бонусные очки, если сделаете значения по умолчанию публично
+видимыми. Так любой сможет поменять `accepts` на «json» в единственном
+месте и не придётся указывать эту опцию снова и снова. Обратите внимание,
+что в примере добавляется `|| {}` при первом чтении объекта с опциями. Это
+позволяет вызывать функцию вообще без параметров.
 
-#### Good Intentions — a.k.a. “Pitfalls” {#good-intentions–aka-pitfalls}
+#### Благие намерения, также известные как «западня»
 
-Now that you know how to be truly flexible in accepting arguments, we need to
-come back to an old saying:
+Теперь, когда вы знаете, как по-настоящему гибко принимать аргументы, нам
+нужно вернуться к старой поговорке:
 
-> “With great power comes great responsibility!”
-> 
-> — Voltaire
+> «С большой силой приходит большая ответственность!»
+>
+> — Вольтер
 
-As with most weakly-typed languages, JavaScript does automatic casting when it
-needs to. A simple example is testing the truthfulness:
+Как и большинство слабо типизированных языков, JavaScript делает
+автоматическое приведение когда это нужно. Простой пример, проверка на
+истинность:
 
     var foo = 1;
     var bar = true;
     
     if (foo) {
-      // yep, this will execute
+      // ага, выполнится
     }
     
     if (bar) {
-      // yep, this will execute
+      // ага, выполнится
     }
 
-We’re quite used to this automatic casting. We’re so used to it, that we
-forget that although something is truthful, it may not be the boolean truth. 
-Some APIs are so flexible they are *too smart* for their own good. Take a look
-at the signatures of[jQuery.toggle()][28]:
+Мы полностью привыкли к этому автоматическому приведению. Мы пользовались
+этим столько раз, что уже забыли, что если что-то истинно, то это не
+обязательно булева истина. Некоторые API настолько гибкие, что они *слишком
+умные*, для их же блага. Взглянем на сигнатуры [jQuery.toggle()][28]:
 
-    .toggle( /* int */ [duration] [, /* function */  callback] )
-    .toggle( /* int */ [duration] [, /* string */  easing] [, /* function */ callback] )
-    .toggle( /* bool */ showOrHide )
+    .toggle( /* int */ [длительность] [, /* function */  коллбек] )
+    .toggle( /* int */ [длительность] [, /* string */  смягчение] [, /* function */ коллбек] )
+    .toggle( /* bool */ показатьИлиСкрыть )
 
-It will take us some time decrypting why these behave *entirely* different:
+Придётся потратить какое-то время, чтобы выяснить, почему это работает
+*совершенно* по-разному:
 
     var foo = 1;
     var bar = true;
@@ -591,34 +595,35 @@ It will take us some time decrypting why these behave *entirely* different:
     $hello.toggle(foo);
     $world.toggle(bar);
 
-We were *expecting* to use the `showOrHide` signature in both cases. But what
-really happened is`$hello` doing a toggle with a `duration` of one millisecond
-. This is not a bug in jQuery, this is a simple case of *expectation not met*.
-Even if you’re an experienced jQuery developer, you *will* trip over this from
-time to time.
+Мы *ожидали* использовать сигнатуру `показатьИлиСкрыть` в обоих случаях.
+Но вот, что произошло на самом деле: `$hello` переключает свою видимость с
+`длительность`ю в 1 миллисекунду. Это не баг jQuery, это простой случай, когда
+*ожидания не оправдались*. Даже если вы разработчик на jQuery со стажем,
+вы *будете* рано или поздно на этом спотыкаться.
 
-You are free to add as much convenience / sugar as you like — but do not
-sacrifice a clean and (mostly) robust API along the way. If you find yourself 
-providing something like this, think about providing a separate method like
-`.toggleIf(bool)` instead. Whatever choice you make, keep your API consistent
-!
+Вы вольны добавить столько удобства / сахара, сколько вам захочется, но не
+жертвуйте чистотой и скоростью API в погоне за этим. Если вы заметите, что
+написали что-то подобное, подумайте над тем, чтобы вместо этого добавить
+отдельный метод, скажем, `.toggleIf(bool)`. И какой выбор вы бы ни сделали,
+соблюдайте единообразие!
 
-### Extensibility {#extensibility}
+### Расширяемость
 
-![Developing Possibilities][29]
+![Разработка возможностей][29]
 
-With option objects, we’ve covered the topic of extensible configuration. Let
-’s talk about allowing the API user to extend the core and API itself. This is 
-an important topic, as it allows your code to focus on the important things, 
-while having API users implement edge-cases themselves. Good APIs are concise 
-APIs. Having a hand full of configuration options is fine, but having a couple 
-dozen of them makes your API feel bloated and opaque. Focus on the primary-use 
-cases, only do the things most of your API users will need. Everything else 
-should be left up to them. To allow API users to extend your code to suit their 
-needs, you have a couple of options
-…
+Рассмотрев объекты опций, мы охватили тему расширяемой конфигурации. Давайте
+поговорим о том, как предоставить возможность пользователю расширить ядро и
+сам API. Это важная тема, потому как это позволит вам сконцентрироваться на
+важных вещах, в то время как другие пользователи будут самостоятельно
+заниматься граничными случаями. Хорошие API — это краткие API. Иметь пригоршню
+опций для настройки неплохо, а если их будет пара дюжин, то ваше API будет
+обущаться как раздутое и непонятное. Обращайте внимание только на те случаи,
+где API используется по прямому назначению, делайте только те вещи, которые
+понадобятся большинству пользователей вашего API. Всё остальное предоставьте
+им самим. Есть несколько способов дать пользователям API возможность расширять
+ваш код в соответствии с их потребностями…
 
-#### Callbacks {#callbacks}
+#### Коллбеки
 
 Callbacks can be used to achieve extensibility by configuration. You can use
 callbacks to allow the API user to override certain parts of your code. When you
