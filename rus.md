@@ -625,11 +625,12 @@ Prototype — функции для объединения объектов, о�
 
 #### Коллбеки
 
-Callbacks can be used to achieve extensibility by configuration. You can use
-callbacks to allow the API user to override certain parts of your code. When you
-feel specific tasks may be handled differently than your default code, refactor 
-that code into a configurable callback function to allow an API user to easily 
-override that:
+Расширяемости через конфигурацию можно добиться при помощи коллбеков. Их
+можно предоставить пользователю API с тем, чтобы он мог изменить поведение
+определённых частей вашего кода. Если вы чувствуете, что какие-то задачи
+могут обрабатываться иначе, чем в вашем коде, сделайте этот кусок кода
+настраиваемым коллбеком, чтобы позволить пользователю API с лёгкостью
+его переопределить:
 
     var default_options = {
       // ...
@@ -658,7 +659,7 @@ override that:
     var widget = new Widget({
       position: function($elem, $parent) {
         var position = $parent.position();
-        // position $elem at the lower right corner of $parent
+        // располагаем $elem в нижнем правом углу $parent
         position.left += $parent.width();
         position.top += $parent.height();
         $elem.css(position);
@@ -666,16 +667,16 @@ override that:
     });
     widget.show();
 
-Callbacks are also a generic way to allow API users to customize elements your
-code has created:
+Также через коллбеки часто предоставляется возможность настроить элементы,
+созданные при помощи вашего кода:
 
-    // default create callback doesn't do anything
+    // по умолчанию соллбек на создание элемента ничего не делает
     default_options.create = function($thingie){};
     
     Widget.prototype.create = function() {
       this.$container = $("<div></div>").appendTo(document.body);
       this.$thingie = $("<div></div>").appendTo(this.$container);
-      // execute create callback to allow decoration
+      // запускаем коллбек на создание, чтобы позволить изменить объект
       this.options.create(this.$thingie);
       return this;
     };
@@ -687,30 +688,31 @@ code has created:
     });
     widget.show();
 
-Whenever you accept callbacks, be sure to document their signature and provide
-examples to help API users customize your code. Make sure you’re consistent 
-about the context (where`this` points to) in which callbacks are executed in,
-and the arguments they accept.
+Всякий раз, когда вы принимаете коллбеки, убедитесь, что их сигнатуры описаны
+в документации с примерам работы, так вы поможете пользователям вашего API
+настраивать ваш код. Убедитесь, что вы соблюдаете единообразие в отношении
+контекста (куда указывает `this`) коллбеков и их аргументов.
 
-#### Events {#events}
+#### События
 
-Events come naturally when working with the DOM. In larger application we use
-events in various forms (e.g. PubSub) to enable communication between modules. 
-Events are particularly useful and feel most natural when dealing with UI 
-widgets. Libraries like jQuery offer simple interfaces allowing you to easily 
-conquer this domain.
+События — привычное дело при работе с DOM. В приложениях помасштабней мы
+используем события в различных проявлениях (например, PubSub), чтобы наладить
+связь между модулями. События особенно полезны и естественны в работе с
+виджетами UI. Библиотеки вроде jQuery позволяют без труда их покорить,
+предоставив вам простые интерфейсы.
 
-Events interface best when there is something happening — hence the name.
-Showing and hiding a widget could depend on circumstances outside of your scope.
-Updating the widget when it’s shown is also a very common thing to do. Both can 
-be achieved quite easily using jQuery’s event interface, which even allows for 
-the use of delegated events:
+Интерфейс событий, как подсказывает название, лучшего всего применим там,
+где что-то происходит. Отображение или скрывание какой-нибудь виджета
+может зависеть от внешних недосягаемых факторов. Другая частая задача —
+обновление виджета, когда он показан. Обе эти задачи можно очень легко решить
+с интерфейсом событий jQuery, который к тому же позволяет события
+делегировать:
 
     Widget.prototype.show = function() {
       var event = jQuery.Event("widget:show");
       this.$container.trigger(event);
       if (event.isDefaultPrevented()) {
-        // event handler prevents us from showing
+        // обработчик события не позволяет нам показываться
         return this;
       }
     
@@ -722,7 +724,7 @@ the use of delegated events:
     // listen for all widget:show events
     $(document.body).on('widget:show', function(event) {
       if (Math.random() > 0.5) {
-        // prevent widget from showing
+        // не позволять виджету показываться
         event.preventDefault();
       }
     
@@ -733,12 +735,13 @@ the use of delegated events:
     var widget = new Widget();
     widget.show();
 
-You can freely choose event names. Avoid using [native events][30] for
-proprietary things and consider namespacing your events. jQuery UI’s event names
-are comprised of the widget’s name and the event name`dialogshow`. I find that
-hard to read and often default to`dialog:show`, mainly because it is
-immediately clear that this is a custom event, rather than something some 
-browser might have secretly implemented.
+Вы можете выбирать имена событий как вам вздумается. Только не используйте
+[нативные события][30] для своих целей и, будьте добры, выносите ваши события
+в отдельное пространство имён. В jQuery UI имена событий составляются из
+имени виджета и имени события `dialogshow`. Мне кажется, что это нечитаемо, и
+часто использую просто `dialog:show`, главным образом из-за того, что так
+сразу очевидно, что это нестандартное событие, а не какая-то скрытая
+особенность браузера.
 
 ### Hooks {#hooks}
 
