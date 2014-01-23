@@ -698,8 +698,8 @@ Prototype — функции для объединения объектов, о�
 События — привычное дело при работе с DOM. В приложениях помасштабней мы
 используем события в различных проявлениях (например, PubSub), чтобы наладить
 связь между модулями. События особенно полезны и естественны в работе с
-виджетами UI. Библиотеки вроде jQuery позволяют без труда их покорить,
-предоставив вам простые интерфейсы.
+виджетами UI. Библиотеки вроде jQuery предоставив простые интерфейсы, с ними
+вы можете легко овладеть этой областью.
 
 Интерфейс событий, как подсказывает название, лучшего всего применим там,
 где что-то происходит. Отображение или скрывание какой-нибудь виджета
@@ -743,16 +743,16 @@ Prototype — функции для объединения объектов, о�
 сразу очевидно, что это нестандартное событие, а не какая-то скрытая
 особенность браузера.
 
-### Hooks {#hooks}
+### Хуки
 
-Traditional getter and setter methods can especially benefit from hooks. Hooks
-usually differ from callbacks in their number and how they’re registered. Where 
-callbacks are usually used on an instance level for a specific task, hooks are 
-usually used on a global level to customize values or dispatch custom actions. 
-To illustrate how hooks can be used, we’ll take a peek at
-[jQuery’s cssHooks][31]:
+Традиционные геттеры и сеттеры могут в особенности выиграть от использования
+хуков. Хуки обычно отличаются от коллбеков их количеством и тем, как они
+устанавливаются. В то время как коллбеки обычно используются на уровне
+экземпляров для конкретных задач, хуки обычно используются на глобальном
+уровне для изменения значений или выполнения произвольных действий.
+В качестве примера применения хуков рассмотрим [cssHooks jQuery][31]:
 
-    // define a custom css hook
+    // определяем хук для произвольного css
     jQuery.cssHooks.custombox = {
       get: function(elem, computed, extra) {
         return $.css(elem, 'borderRadius') == "50%"
@@ -766,14 +766,14 @@ To illustrate how hooks can be used, we’ll take a peek at
       }
     };
     
-    // have .css() use that hook
+    // применям .css(), который использует этот хук
     $("#some-selector").css("custombox", "circle");
 
-By registering the hook `custombox` we’ve given jQuery’s `.css()` method the
-ability to handle a CSS property it previously couldn’t. In my article
-[jQuery hooks][32], I explain the other hooks that jQuery provides and how they
-can be used in the field. You can provide hooks much like you would handle 
-callbacks:
+Зарегистрировав хук `custombox`, мы наделили метод `.css()` jQuery
+способностью обрабатывать ранее недоступное свойство CSS. В свой статье
+[хуки в jQuery][32] я рассказываю о других хуках, предоставляемых jQuery и
+о том, как их можно применять. Вы можете предоставлять хуки примерно так же,
+как и коллбеки:
 
     DateInterval.nameHooks = {
       "yesterday" : function() {
@@ -806,18 +806,19 @@ callbacks:
     var di = new DateInterval();
     di.start("yesterday");
 
-In a way, hooks are a collection of callbacks designed to handle custom values
-within your own code. With hooks you can stay in control of almost everything, 
-while still giving API users the option to customize.
+В какой-то степени, хуки — это набор коллбеков, созданных для обработки
+произвольных значений в вашем коде. С хуками вы по-прежнему можете
+контролировать почти всё, но при этом оставляя пользователям API возможность
+изменения поведения.
 
-### Generating Accessors {#generating-accessors}
+### Генерирование аксессоров
 
-![Duplication][33]
+![Дублирование][33]
 
-Any API is likely to have multiple accessor methods (getters, setters,
-executors) doing similar work. Coming back to our`DateInterval` example, we’
-re most likely providing`start()` and `end()` to allow manipulation of
-intervals. A simple solution could look like:
+Скорее всего, в любом API содержится множество методов-аксессоров (геттеров,
+сеттеров, экзекуторов), которые делают похожие вещи. Вернёмся к примеру с
+`DateInterval`. Там мы наверняка предоставили бы методы `start()` и `end()`
+для управления интервалами. Просто решение может выглядеть так:
 
     DateInterval.prototype.start = function(date) {
       if (date === undefined) {
@@ -837,8 +838,8 @@ intervals. A simple solution could look like:
       return this;
     };
 
-As you can see we have a lot of repeating code. A DRY (Don’t Repeat Yourself
-) solution might use this generator pattern:
+Как видите, куча повторяющегося кода. Принцип «не повторяйся» подсказывает
+воспользваться шаблоном-генератором:
 
     var accessors = ["start", "end"];
     for (var i = 0, length = accessors.length; i < length; i++) {
@@ -858,9 +859,10 @@ As you can see we have a lot of repeating code. A DRY (Don’t Repeat Yourself
       };
     }
 
-This approach allows you to generate multiple similar accessor methods, rather
-than defining every method separately. If your accessor methods require more 
-data to setup than just a simple string, consider something along the lines of:
+Такой подход позволит вам генерировать несколько похожих методов-аксессоров
+вместо того, чтобы указывать их по-отдельности. Если ваши аксессоры требуют
+больше данных при генерации, чем просто строка, можно использовать что-то
+подобное:
 
     var accessors = {"start" : {color: "green"}, "end" : {color: "red"}};
     for (var key in accessors) {
@@ -870,25 +872,26 @@ data to setup than just a simple string, consider something along the lines of:
     function generateAccessor(key, accessor) {
       var value = key + "Date";
       return function(date) {
-        // setting something up 
-        // using `key` and `accessor.color`
+        // тут делаем что-нибудь полезное,
+        // используя `key` и `accessor.color`
       };
     }
 
-In the chapter *Handling Arguments* we talked about a method pattern to allow
-your getters and setters to accept various useful types like maps and arrays. 
-The method pattern itself is a pretty generic thing and could easily be turned 
-into a generator:
+В главе *Обработка аргументов* мы говорили о шаблоне метода, позволяющем
+вашим геттерам и сеттерам принимать значения различных полезных типов, вроде
+словарей и массивов. Шаблон метода сам по себе достаточно универсален и его
+можно с легкостью превратить в генератор:
 
     function wrapFlexibleAccessor(get, set) {
       return function(name, value) {
         var map;
     
         if (jQuery.isPlainObject(name)) {
-          // setting a map
+          // устанавливаем словарь
           map = name;
         } else if (value !== undefined) {
-          // setting a value (on possibly multiple names), convert to map
+          // устанавливаем значение (возможно, на нескольких именах),
+          // преобразуем в словарь
           keys = name.split(" ");
           map = {};
           for (var i = 0, length = keys.length; i < length; i++) {
@@ -917,30 +920,31 @@ into a generator:
       }
     );
 
-Digging into the art of writing DRY code is well beyond this article. 
-[Rebecca Murphey][34] wrote [Patterns for DRY-er JavaScript][35] and 
-[Mathias Bynens’][36] slide deck on 
-[how DRY impacts JavaScript performance][37] are a good start, if you’re new
-to the topic.
+Углубленное описание искусства написания кода без повторов выходит далеко
+за пределы этой статьи. [Patterns for DRY-er JavaScript][35] авторства
+[Ребекки Мёрфи][34] и слайды [Матиаса Биненса][36] про то
+[как принцип «не повторяйся» влияет на производительность JavaScript][37] —
+это хорошее начало для изучения это темы.
 
-### The Reference Horror {#the-reference-horror}
+### Ужасы передачи по ссылке
 
-Unlike other languages, JavaScript doesn’t know the concepts of *pass by
-reference* nor *pass by value*. Passing data by value is a safe thing. It makes
-sure data passed to your API and data returned from your API may be modified 
-outside of your API without altering the state within. Passing data by reference
-is often used to keep memory overhead low, values passed by reference can be 
-changed anywhere outside your API and affect state within.
+В отличие от других языков, JavaScript незнакомы понятия *передачи по ссылке*
+или *передачи по значению*. Передача данных по значению — это безопасное
+действие. С ним можно быть уверенным, что данные, переданные в ваш API, или
+возвращенные вашим API, можно изменять, не боясь поменять внутреннее
+состояние. Передача данных по ссылке часто используется для экономии памяти,
+данные, переданные по ссылке, могут быть изменены снаружи вашего API и
+повлять не его внутреннее состояние.
 
-In JavaScript there is no way to tell if arguments should be passed by
-reference or value. Primitives (strings, numbers, booleans) are treated as *pass
-by value*, while objects (any object, including Array, Date) are handled in a
-way that’s comparable to *by reference*. If this is the first you’re hearing
-about this topic, let the following example enlighten you:
+В JavaScript нельзя указать, что аргументы следует передавать по ссылке или
+по значению. Примитивы (строки, числа, булевы значения) трактуаются как
+*передача по значению*, а объекты (любые, включая Array, Date) передаются
+способом, похожим на *передачу по ссылке*. Если вы сейчас впервые об этом
+прочитали, вот вам пример в качестве ликбеза:
 
-    // by value
+    // по значению
     function addOne(num) {
-      num = num + 1; // yes, num++; does the same
+      num = num + 1; // да, num++; делает то же самое
       return num;
     }
     
@@ -949,7 +953,7 @@ about this topic, let the following example enlighten you:
     // x === 0 <--
     // y === 1
     
-    // by reference
+    // по ссылке
     function addOne(obj) {
       obj.num = obj.num + 1;
       return obj;
@@ -960,116 +964,117 @@ about this topic, let the following example enlighten you:
     // ox.num === 1 <--
     // oy.num === 1
 
-The *by reference* handling of objects can come back and bite you if you’re
-not careful. Going back to the`DateInterval` example, check out this bugger:
+Обработка объектов *по ссылке* может вас пребольно укусить, если вы не будете
+осторожны. Вернёмся к примеру с `DateInterval` и рассмотрим такую багу:
 
     var startDate = new Date(2012, 0, 1);
     var endDate = new Date(2012, 11, 31)
     var interval = new DateInterval(startDate, endDate);
-    endDate.setMonth(0); // set to january
-    var days = interval.days(); // got 31 but expected 365 - ouch!
+    endDate.setMonth(0); // устанавливаем январь
+    var days = interval.days(); // получили 31, а ожидалось 365 - ой!
 
-Unless the constructor of DateInterval *made a copy* (`clone` is the technical
-term for a copy) of the values it received, any changes to the original objects 
-will reflect on the internals of DateInterval. This is *usually* not what we
-want or expect.
+Если конструктор DateInterval не *сделал копию* (технический термин —
+«склонировал») полученные значения, любое изменение оригинальных объектов
+отразится на внутреннем поведении DateInterval. Это *обычно* не то, чего
+мы хотим или ожидаем.
 
-Note that the same is true for values returned from your API. If you simply
-return an internal object, any changes made to it outside of your API will be 
-reflected on your internal data. This is most certainly not what you want.
-[jQuery.extend()][25], [_.extend()][26] and Protoype’s [Object.extend][27]
-allow you to easily escape the reference horror.
+Обратите внимание, это правдиво и для значений, которые ваш API вернул. Если
+вы просто вернёте внутренний объект, любые изменения, совершённые снаружи,
+отразятся на внутренних данных. И это наверняка не то, чего бы вам хотелось.
+[jQuery.extend()][25], [_.extend()][26] и [Object.extend][27] в Prototype —
+это способы легко избавиться от ужасов передачи по ссылке.
 
-If this summary did not suffice, read the excellent chapter 
-[By Value Versus by Reference][38] from O’Reilly’s 
-[JavaScript – The Definitive Guide][39].
+Если этого краткое изложение вам кажется недостаточно, прочтите отличную
+статью [По ссылке или по значению][38] из [книги с носорогом][39].
 
-### The Continuation Problem {#the-continuation-problem}
+### Проблема продолжения
 
-In a fluent interface, all methods of a chain are executed, regardless of the
-state that the base object is in. Consider calling a few methods on a jQuery 
-instance that contain no DOM elements:
+В текучем интерфейсе все методы в цепочке вызовов выполняются независимо от
+состояния базового объекта. К примеру, вызовем несколько методов на
+экземпляре jQuery, который не содержит элементов DOM:
 
     jQuery('.wont-find-anything')
-      // executed although there is nothing to execute against
+      // методы выполнятся, хотя им и нечего делать
       .somePlugin().someOtherPlugin();
 
-In non-fluent code we could have prevented those functions from being executed
-:
+В не-текучем коде мы можем предотвратить вызов этих функций:
 
     var $elem = jQuery('.wont-find-anything');
     if ($elem.length) {
       $elem.somePlugin().someOtherPlugin();
     }
 
-Whenever we chain methods, we lose the ability to prevent certain things from
-happening — we can’t escape from the chain. As long as the API developer knows 
-that objects can have a state where methods don’t actually do anything but
-`return this;`, everything is fine. Depending on what your methods do
-internally, it may help to prepend a trivial`is-empty` detection:
+Когда мы используем цепные вызовы, мы теряем возможность сделать так, чтобы
+какие-то вещи не происходили — мы не можем никуда деться из цепи. Пока
+разработчик API знает, что у объекта бывают состояния, когда нужно сделать
+лишь `return this;`, всё хорошо. В зависимости того, что ваши методы делают
+внутри себя, может оказаться полезным добавить тривиальную проверку на пустоту
+объекта:
 
     jQuery.fn.somePlugin = function() {
       if (!this.length) {
-        // "abort" since we've got nothing to work with
+        // Отставить! Нам тут делать нечего
         return this;
       }
     
-      // do some computational heavy setup tasks
+      // делаем какие-то тяжёлые вычисления для настройки
       for (var i = 10000; i > 0; i--) {
-        // I'm just wasting your precious CPU!
-        // If you call me often enough, I'll turn
-        // your laptop into a rock-melting jet engine
+        // Я всего лишь трачу попусту ваше драгоценное процессорное время
+        // Если вы будете запускать меня достаточно часто,
+        // я превращу ваш лэптоп в сталеплавильную печь
       }
     
       return this.each(function() {
-        // do the actual job
+        // делаем полезную работу
       });
     };
 
-### Handling Errors {#handling-errors}
+### Обработка ошибок
 
-![Fail Faster][40]
+![Выходим из строя раньше][40]
 
-I was lying when I said we couldn’t escape from the chain — there is an 
-`Exception` to the rule (pardon the pun ☺).
+Я лукавил, когда говорил, что мы не может никуда деться из цепи, для этого
+правила есть `Исключение` (простите за каламбур ☺).
 
-We can always eject by throwing an Error (Exception). Throwing an Error is
-considered a deliberate abortion of the current flow, most likely because you 
-came into a state that you couldn’t recover from. But beware — not all Errors 
-are helping the debugging developer:
+Мы всегда можем сбежать с подводной лодки, кинув ошибку (исключение).
+Выбрасывание ошибки считается преднамеренным прерыванием текщего потока,
+чаще всего из-за того, что вы получили состоянием, которое вы не в силах
+исправить. Но будьте осторожны, не все ошибки помогают разработчику при
+отладке:
 
-    // jQuery accepts this
+    // jQuery получает это
     $(document.body).on('click', {});
     
-    // on click the console screams
+    // при щелчке в консоль выведется:
     //   TypeError: ((p.event.special[l.origType] || {}).handle || l.handler).apply is not a function 
     //   in jQuery.min.js on Line 3
 
-Errors like these are a major pain to debug. Don’t waste other people’s
-time. Inform an API user if he did something stupid:
+Ошибки вроде такой — это огромная головная боль при отладке. Не тратьте
+попусту время других людей. Информируйте пользователя API, если он сделал
+что-то глупое:
 
-    if (Object.prototype.toString.call(callback) !== '[object Function]') { // see note
+    if (Object.prototype.toString.call(callback) !== '[object Function]') { // см. прим.
       throw new TypeError("callback is not a function!");
     }
 
-Note: `typeof callback === "function"` should not be used, as older browsers
-may report objects to be a`function`, which they are not. In Chrome (up to
-version 12
-) `RegExp` is such a case. For convenience, use [jQuery.isFunction()][41] or 
-[_.isFunction()][42].
+Примечание: `typeof callback === "function"` не следует использовать, потому
+что старые браузеры могут говорить, что объект — функция, хотя он ей не
+является. В Chrome (до версии 12) это происходило с `RegExp`. Для удобства
+используйте [jQuery.isFunction()][41] или [_.isFunction()][42].
 
-Most libraries that I have come across, regardless of language (within the weak
--typing domain) don’t care about rigorous input validation. To be honest, my own
-code only validates where I anticipate developers stumbling. Nobody really does 
-it, but all of us should. Programmers are a lazy bunch — we don’t write code 
-just for the sake of writing code or for some cause we don’t truly believe in. 
-The developers of Perl6 have recognized this being a problem and decided to 
-incorporate something called *Parameter Constraints*. In JavaScript, their
-approach might look something like this:
+Большая часть библиотек, которые я встречал, независимо от языка (среди
+слаботипизированных) не заботятся о доскональной проверке входных данных.
+Честно говоря, мой собственный код проводит валидацию только в тех местах,
+где я вижу возможность допустить ошибку. Никто из нас этого не делает, но всем
+нам следует делать. Все программисты ленивые, мы не пишем код просто для того,
+чтобы писать код, или по какой-то причине сами в это не верим. Разработчики
+Perl6 увидели в этом проблему и решили добавить кое-что, что называется
+*ограничение параметров*. В JavaScript их подход мог бы выглядеть похожим
+образом:
 
     function validateAllTheThings(a, b {where typeof b === "numeric" and b < 10}) {
-      // Interpreter should throw an Error if b is
-      // not a number or greater than 9
+      // Интерпретатор должен кинуть ошибку,
+      // если b не число или больше 9
     }
 
 While the syntax is as ugly as it gets, the idea is to make validation of input
