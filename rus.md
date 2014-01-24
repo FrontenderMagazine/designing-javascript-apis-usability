@@ -105,7 +105,7 @@ jQuery. Но с другой стороны, Фаулер лишь дал это
 документирования API позже, а сейчас я хотел бы заметить, что функции со
 множественными сигнатурами, возможно, будет сложнее документировать.
 
-#### Переходим на текучесть
+#### Переходим к текучести
 
 Хотя текучесть уже по большей части обеспечивается цепными вызовами, мы ещё
 не закончили. Следующий шаг к *текучести* поможет продемонстрировать такой
@@ -1095,15 +1095,15 @@ JavaScript не слабый и не ущербный, просто нам ну�
 строку вместо числа. Это как раз тот случай, когда вы можете сказать людям,
 что *они неправы*, и они ещё и поблагодарят вас за это.
 
-### Going Asynchronous {#going-asynchronous}
+### Переходим к асинхронности
 
-So far we’ve only looked at synchronous APIs. Asynchronous methods usually
-accept a callback function to inform the outside world, once a certain task is 
-finished. This doesn’t fit too nicely into our fluent interface scheme, though:
+До этого момента мы рассматривали синхронные API. Асинхронные методы обычно
+принимают коллебеки, чтобы проинформировать окружающий мир что определённая
+работа завершилась. Не очень-то подходит к нашей схеме текучего интерфейса:
 
     Api.protoype.async = function(callback) {
       console.log("async()");
-      // do something asynchronous
+      // делаем что-нибудь асинхронно
       window.setTimeout(callback, 500);
       return this;
     };
@@ -1111,27 +1111,28 @@ finished. This doesn’t fit too nicely into our fluent interface scheme, though
       console.log("method()");
       return this;
     };
-
-    // running things
+    
+    // запускаем
     api.async(function() {
       console.log('callback()');
     }).method();
     
-    // prints: async(), method(), callback()
+    // выведется: async(), method(), callback()
 
-This example illustrates how the asynchronous method `async()` begins its work
-but immediately returns, leading to`method()` being invoked before the actual
-task of`async()` completed. There are times when we want this to happen, but
-generally we expect`method()` to execute *after* `async()` has completed its
-job.
+Этот пример показывает, как асинхронный метод `async()` начинает свою работу,
+но сразу же за этим следует возврат, это приводит к тому, что `method()`
+вызывается раньше, чем `async()` успеет выполнить свою задачу. Есть случаи,
+когда мы хотим, чтобы так и произошло, но обычно мы ожидаем, что `method()`
+запустится *после* того, как `async()` закончит работу.
 
-#### Deferreds (Promises) {#deferreds-promises}
+#### Дефёрреды (Промисы)
 
-To some extent we can counter the mess that is a mix of asynchronous and
-synchronous API calls with[Promises][43]. jQuery knows them as [Deferreds][44]
-`this`, which forces you to eject from method chaining. This may seem odd at
-first, but it effectively prevents you from continuing synchronously after 
-invoking an asynchronous method:
+В какой-то степени мы можем справиться с такой кашей из вызовов синхронного и
+асинхронного API при помощи [Промисов][43]. jQuery знает их как
+[Дефёрреды][44]. Объект `Deferred` возвращается вместо обычного `this`, что
+выбрасывает нас из цепочки вызовов. Это поначалу кажется необычным, но
+фактически это оберегает нас от продолжения синхронных вызовов после вызова
+асинхронного метода:
 
     Api.protoype.async = function() {
       var deferred = $.Deferred();
@@ -1144,7 +1145,7 @@ invoking an asynchronous method:
     
       return deferred.promise();
     };
-
+    
     api.async().done(function(data) {
       console.log("callback()");
       api.method();
@@ -1152,157 +1153,182 @@ invoking an asynchronous method:
     
     // prints: async(), callback(), method()
 
-The Deferred object let’s you register handlers using `.done()`, `.fail()`, 
-`.always()` to be called when the asynchronous task has completed, failed, or
-regardless of its state. See[Promise Pipelines In JavaScript][45] for a more
-detailed introduction to Deferreds.
+Объект `Deferred` позволяет регистрировать обработчики при помощи `.done()`,
+`.fail()`, `.always()`. Эти обработчики будут вызваны в случае завершения,
+неудачи, или независимо от состояния. См. [Конвееры промисов в JavaScript][45]
+для более детального описания дефёрредов.
 
-### Debugging Fluent Interfaces {#debugging-fluent-interfaces}
+### Отладка текчих интерфейсов
 
-While *Fluent Interfaces* are much nicer to develop with, they do come with
-certain limitations regarding de-buggability.
+Хотя с *текучими интерфейсамы* и гораздо приятней разрабатывать, у них есть
+определённые ограничения в возможностях их отладки.
 
-As with any code, *Test Driven Development* (TDD) is an easy way to reduce
-debugging needs. Having written URI.js in TDD, I have not come across major 
-pains regarding debugging my code. However, TDD only *reduces* the need for
-debugging — it doesn’t replace it entirely.
+Как и с любым кодом, 
 
-Some voices on the internet suggest writing out each component of a chain in
-their separate lines to get proper line-numbers for errors in a stack trace:
+As with any code, *разработка через тестирование* (TDD) — это простой способ
+уменьшить потребность в отладке. Я писал URI.js с использованием TDD и не
+сталкивался с какими-нибудь серьёзными затруднениям с отладкой. Но с другой
+стороны, разработка через тестирование лишь уменьшает необходимость отладки,
+она не заменяе её полностью.
+
+Кто-то в интернете советует присать каждый копонент цепочки вызовов в своей
+собственной строке, чтобы получить вместяемые номера строк в стектрейсе:
 
     foobar.bar()
       .baz()
       .bam()
       .someError();
 
-This technique does have its benefits (though better debugging is not a solid
-part of it). Code that is written like the above example is even simpler to read.
-Line-based differentials (used in version control systems like SVN, GIT) might 
-see a slight win as well. Debugging-wise, it is only Chrome (at the moment), 
-that will show`someError()` to be on line four, while other browsers treat it
-as line one.
+У такой техники есть свои преимущества (хотя облегчение отладки тут и не самая
+важная часть). Код, написанный как в примере выше, ещё проще читать.
+Построчное сравнение (которое используется в системах контроля версий вроде
+SVN и GIT) тоже могт от этого выиграть. А что касается отладки, только в
+Chrome (на момент написания статьи) `someError()` покажется на 4 строке,
+остальные браузеры будут считать, что ошибка на строке 1.
 
-Adding a simple method to logging your objects can already help a lot —
-although that is considered “manual debugging” and may be frowned upon by people
-used to “real” debuggers:
+Даже добавление простого метода для записи происходящего с вашими объектами
+в лог может серьёзно помочь. Хотя это и считается «отладкой вручную» и может
+вызывать ухмылку у людей, привыкших к «настоящим» дебаггерам:
 
     DateInterval.prototype.explain = function() {
-      // log the current state to the console
+      // выводим текущее состояние в консоль
       console.dir(this);
     };
     
     var days = (new Date(2012, 0, 1))
-      .until(2012, 11, 31) // returns DateInterval instance
-      .explain() // write some infos to the console
+      .until(2012, 11, 31) // возвращает экземпляр DateInterval
+      .explain() // пишем отладочную информацию в консоль
       .days(); // 365
 
-#### Function names {#function-names}
+#### Имена функций
 
-Throughout this article you’ve seen a lot of demo code in the style of 
-`Foo.prototype.something = function(){}`. This style was chosen to keep
-examples brief. When writing APIs you might want to consider either of the 
-following approaches, to have your console properly identify function names:
+На всём протяжении этой статьи вы увидели много примеров кода в стилистике
+`Foo.prototype.something = function(){}`. Такой стиль был выбран для краткости
+примеров. Но когда вы будете писать код, вам может понадобиться один из
+следующих подходов для того, чтобы ваша консоль могла правильно показывать
+имена функций:
 
     Foo.prototype.something = function something() {
-      // yadda yadda
+      // трали-вали
     };
 
     Foo.prototype.something = function() {
-      // yadda yadda
+      // трали-вали
     };
     Foo.prototype.something.displayName = "Foo.something";
 
-The second option `displayName` was introduced by WebKit and later adopted by
-Firebug / Firefox.`displayName` is a bit more code to write out, but allows
-arbitrary names, including a namespace or associated object. Either of these 
-approaches can help with anonymous functions quite a bit.
+Второй способ, `displayName` был представлен в WebKit, а затем появился и в
+Firebug / Firefox. С `displayName` написать кода придётся немного больше,
+но это позволит использовать произвольные имена, включаяя пространства имён
+или связанный объект. Любой из этих подходов может немного помочь при работе с
+анонимными функциями.
 
-Read more on this topic in [Named function expressions demystified][46] by 
-[kangax][12].
+Узнать больше вы сможете у [kangax][12] в статье
+[Разъяснения насчет именованных функций-выражений][46].
 
-### Documenting APIs {#documenting-apis}
+### Документирование API
 
-One of the hardest tasks of software development is documenting things.
-Practically everyone hates doing it, yet everybody laments about bad or missing 
-documentation of the tools they need to use. There is a wide range of tools that
-supposedly help and automate documenting your code:
+Одна из самых сложных задач разработки ПО — это написание документации.
+Практически все ненавидят это делать, но при это все жалуются на плохую или
+отсутствующую документацию тех утилит, с которыми им нужно работать.
+Есть много разнообразных утилиты, призванных помочь и автоматизировать процесс
+документирования вашего кода:
 
-At one point or another all of these tool won’t fail to disappoint.
-JavaScript is a very dynamic language and thus particularly diverse in 
-expression. This makes a lot of things extremely difficult for these tools. The 
-following list features a couple of reasons why I’ve decided to prepare 
-documentation in vanilla HTML, markdown or[DocBoock][47] (if the project is
-large enough). jQuery, for example, has the same issues and doesn’t document 
-their APIs within their code at all.
+-   [YUIDoc][YUIDoc] (требует Node.js, npm)
+-   [JsDoc Toolkit][JsDoc Toolkit] (требует Node.js, npm)
+-   [Markdox][Markdox] (требует Node.js, npm)
+-   [Dox][Dox] (требует Node.js, npm)
+-   [Docco][Docco] (требует Node.js, Python, CoffeeScript)
+-   [JSDuck][JSDuck] (требует Ruby, gem)
+-   [JSDoc 3][JSDoc 3] (требует Java)
 
-1.  Function signatures aren’t the only documentation you need, but most
-    tools focus only on them.
-   
-2.  Example code goes a long way in explaining how something works. Regular API
-    docs usually fail to illustrate that with a fair trade-off.
-   
-3.  API docs usually fail horribly at explaining things *behind the scenes* (
-    flow, events, etc
-    ).
-4.  Documenting methods with multiple signatures is usually a real pain.
-5.  Documenting methods using option objects is often not a trivial task.
-6.  Generated Methods aren’t easily documented, neither are default callbacks
-    .
+Все эти утилиты так или иначе вызывают разочарование. JavaScript — очень
+динамичный язык, и тем самым особенно разнообразен в выражениях. Из-за этого
+со многими вещами таким утилитам очень сложно справиться. Ниже список причин,
+почему я решил подготавливать документацию в простом HTML, markdown или
+[DocBoock][47] (если проект достаточно большой). У jQuery, например, точно
+такие же проблемы, и его разработчики вообще не документируют свой API в
+коде.
 
-If you can’t (or don’t) want to adjust your code to fit one of the listed
-documentation tools, projects like[Document-Bootstrap][48] might save you some
-time setting up your home brew documentation.
+1.  Сигнатуры функций — это ещё не всё, что требуется от документации, но
+    большая часть утилит сосредоточены именно на этом.
 
-Make sure your Documentation is more than just some generated API doc. Your
-users will appreciate any examples you provide. Tell them how your software 
-flows and which events are involved when doing something. Draw them a map, if it
-helps their understanding of whatever it is your software is doing. And above 
-all: keep your docs in sync with your code!
+2.  Примеры кода имеют большое значение в объяснении, как что-то работает.
+    В обычной документации API обычно это не получается нормально сделать.
 
-#### Self-Explanatory Code {#self-explanatory-code}
+3.  Документирование кода обычно не справляется с объяснением процессов,
+    происходящих *за кулисами* (поток, события и т.п.)
 
-Providing good documentation will not keep developers from actually reading
-your code — your code is a piece of documentation itself. Whenever the 
-documentation doesn’t suffice (and every documentation has its limits), 
-developers fall back to reading the actual source to get their questions 
-answered. Actually, you are one of them as well. You are most likely reading 
-your own code again and again, with weeks, months or even years in between.
+4.  Документирование методов с несколькими сигнатурами обычно очень
+    болезненно.
 
-You should be writing code that explains itself. Most of the time this is a non
--issue, as it only involves you thinking harder about naming things (functions, 
-variables, etc) and sticking to a core concept. If you find yourself writing 
-code comments to document how your code does something, you’re most likely 
-wasting time — your time, and the reader’s as well. Comment on your code to 
-explain *why* you solved the problem this particular way, rather than explaining
-*how* you solved the problem. The *how* should become apparent through your
-code, so don’t repeat yourself. Note that using comments to mark sections within
-your code or to explain general concepts is totally acceptable.
+5.  Документирование методов с объектами опций часто нетривиально.
 
-### Conclusion {#conclusion}
+6.  Сгенерированные методы обычно нелегко документировать, это же касается и
+    коллбеков по умолчанию.
 
-*   An API is a contract between you (the provider) and the user (the consumer
-    ). Don’t just change things between versions.
-   
-*   You should invest as much time into the question *How will people use my
-    software?* as you have put into *How does my software work internally?* 
-*   With a couple of simple tricks you can greatly reduce the developer’s
-    efforts (in terms of the lines of code
-    ).
-*   Handle invalid input as early as possible — throw Errors.
-*   Good APIs are flexible, better APIs don’t let you make mistakes.
+Если вы не можете (или не хотите) подстраивать ваш код под одну из приведённых
+выше утилит для документирования и предпочитаете делать документацию
+«на коленке», то проекты вроде [Document-Bootstrap][48] могли бы сберечь ваше
+время.
 
-Continue with [Reusable Code for good or for awesome][49] ([slides][50]), a
-Talk by[Jake Archibald][15] on designing APIs. Back in 2007 Joshua Bloch gave
-the presentation[How to Design A Good API and Why it Matters][51] at Google
-Tech Talks. While his talk did not focus on JavaScript, the basic principles 
-that he explained still apply.
+Убедитесь, что ваша документация — это нечно большее, чем автоматически
+сгенерированный текст. Ваши пользователи будут благодарны за предосталвенные
+примеры. Расскажите им, как ваша программа работает, и когда какие события
+происходят. Нарисуйте схему, если это поможет пользователям разобраться, как
+ваш API делает то или иное. И прежде всего: поддерживайте синхронизацию
+между кодом и документацией!
 
-Now that you’re up to speed on designing APIs, have a look at 
-[Essential JS Design Patterns][52] by [Addy Osmani][53] to learn more about how
-to structure your internal code.
+#### Самоочевидный код
 
-*Thanks go out to [@bassistance][54], [@addyosmani][53] and [@hellokahlil][55]
-for taking the time to proof this article.*
+Обеспечение разработчиков хорошей документацией не удержит их от чтения
+ваших исходников, ваш код — сам по себе часть документации. Если
+документации станет не хватать (а у каждой документации есть свои пределы),
+разработчики прибегнут к чтению исходного кода, чтобы получить ответы на
+их вопросы. В действительности, вы тоже к ним относитесь. Скорее всего, вы
+сами будете читать ваш собственный код снова и снова, через недели, месяцы
+или даже годы.
+
+Вы должны писать самоочевидный код. Чаще всего это не проблема, потому как
+самое сложное — это давать вещам (функциям, переменным и т.п.) имена и
+соблюдать внутреннюю концепцию. Если вы поймёте, что пишете комментарии в
+коде, объясняющие, каким образом он что-то делает, то наверняка вы просто
+тратите время, своё и читателя. Используйте комментарии, объясняющие, *почему*
+вы решили проблему именно так, а не *как* вы решили проблему. «Как» должно
+быть очевидно из вашего кода, так что не повторяйтесь. Обратите внимание, что
+использование комментариев для визуальной разметки блоков вашего кода или для
+объяснения общих принципов вполне допустимо.
+
+### Заключение
+
+*   API — это соглашение между вами (поставщиком) и пользователем
+    (потребителем). Не меняйте беспричинно вещи между версиями.
+
+*   Уделяйте столько же времени на вопрос *Как люди будут пользоваться моим
+    кодом?*, как и на вопрос *Как моя программа работает внутри?*
+
+*   При помощи пары простых трюков вы можете значительно уменьшить усилия
+    разработчика (если считать в строчках кода).
+
+*   Обрабатывайте невалидные входные данные как можно раньше, бросайте ошибки.
+
+*   Хорошие API гибкие, а те API, которые не дадут допустить ошибку, ещё
+    лучше.
+
+Продолжите изучение с видео
+[Повторное использование кода — хорошо или великолепно][49] ([слайды][50]),
+выступлением [Джейка Арчибальда][15] о разработке API. Ещё в 2007 Джошуа
+Блох высупал с презентацией
+[Как разработать хороший API и почему это важно][51] на Google Tech Talks.
+Хотя он говорил не о JavaScript, изложенные им основные принципы вполне
+применимы.
+
+Если вы интересуетесь скоростью разработки API, взгляните на
+[Важные паттерны разработки в JS][52] [Эдди Османи][53], чтобы узнать больше
+о том, как устроить код изнутри.
+
+*Спасибо [@bassistance][54], [@addyosmani][53] и [@hellokahlil][55] за то,
+что нашли время на корректуру этой статьи.*
 
  [1]: img/Pie-chart.jpg "Time Spent On Creating Vs Time Spent On Using"
  [2]: http://en.wikipedia.org/wiki/Fluent_interface#JavaScript
@@ -1366,3 +1392,11 @@ for taking the time to proof this article.*
  [53]: https://twitter.com/addyosmani
  [54]: https://twitter.com/bassistance
  [55]: https://twitter.com/hellokahlil
+
+ [YUIDoc]: http://yui.github.com/yuidoc/
+ [JsDoc Toolkit]: https://github.com/p120ph37/node-jsdoc-toolkit
+ [Markdox]: https://github.com/cbou/markdox
+ [Dox]: https://github.com/visionmedia/dox
+ [Docco]: http://jashkenas.github.com/docco/
+ [JSDuck]: https://github.com/senchalabs/jsduck
+ [JSDoc 3]: https://github.com/jsdoc3/jsdoc
