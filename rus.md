@@ -743,7 +743,7 @@ API с лёгкостью его переопределить:
       return this;
     };
 
-    // listen for all widget:show events
+    // листнер для всех событий widget:show
     $(document.body).on('widget:show', function(event) {
       if (Math.random() > 0.5) {
         // не позволять показывать виджет
