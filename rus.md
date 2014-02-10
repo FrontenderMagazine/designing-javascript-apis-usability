@@ -460,16 +460,16 @@ API. Чтобы определить, что значение `undefined` был
     }
     
     namesAreAwesome();
-    // prints: 1, 2
+    // выведет: 1, 2
     
     namesAreAwesome(3, 4);
-    // prints: 3, 4
+    // выведет: 3, 4
     
     namesAreAwesome(foo=5, bar=6);
-    // prints: 5, 6
+    // выведет: 5, 6
     
     namesAreAwesome(bar=6);
-    // prints: 1, 6
+    // выведет: 1, 6
 
 При использовании такой схемы вызов функции initMouseEvent() мог бы выглядеть 
 более понятным:
