@@ -1074,14 +1074,16 @@ API, или возвращенные вашим API, можно изменять
     $(document.body).on('click', {});
     
     // при щелчке в консоль выведется:
-    //   TypeError: ((p.event.special[l.origType] || {}).handle || l.handler).apply is not a function 
-    //   in jQuery.min.js on Line 3
+    // TypeError: ((p.event.special[l.origType] || {}).handle || l.handler).apply 
+    // is not a function 
+    // in jQuery.min.js on Line 3
 
 Ошибки вроде этой — одна сплошная головная боль при отладке. Не тратьте
 попусту время других людей. Информируйте пользователя API, если он сделал
 что-то глупое:
 
-    if (Object.prototype.toString.call(callback) !== '[object Function]') { // см. прим.
+    if (Object.prototype.toString.call(callback) !== '[object Function]') { 
+      // см. прим.
       throw new TypeError("callback is not a function!");
     }
 
