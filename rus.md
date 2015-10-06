@@ -201,7 +201,7 @@ segregation, прим. ред.) — это концепция, пришедша
 
 ## Единообразие
 
-У [Джейка Арчибальда][15] был слайд определением слова *единообразие*. 
+У [Джейка Арчибальда][15] был слайд с определением слова *единообразие*. 
 Это определение звучит так: [*не PHP*][16]. Не. Дай. Бог. Не вздумайте 
 назвать свою функцию *str_repeat()*, *strpos()* или *substr()*. 
 И еще, никогда в жизни не меняйте позиции аргументов. Если вы объявили 
@@ -550,7 +550,7 @@ Prototype. Это функции, необходимые для объедине
       // и так далее
     };
     
-    //функция мечты
+    // функция мечты
     function dream(options) {
       var o = jQuery.extend({}, default_options, options || {});
       console.log(o.accepts);
@@ -671,7 +671,7 @@ API с лёгкостью его переопределить:
       return this;
     };
     
-    Widget.protoype.show = function() {
+    Widget.prototype.show = function() {
       this.options.position(this.$thingie, this.$container);
       this.$thingie.show();
       return this;
